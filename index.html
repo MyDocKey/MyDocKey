@@ -80,16 +80,16 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-// Firebase config - REPLACE with your actual config
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBNMO68Z3fHDUPSMluGdem7tiXFitPJ9Xs",
+  authDomain: "mydockey-23982.firebaseapp.com",
+  projectId: "mydockey-23982",
+  storageBucket: "mydockey-23982.firebasestorage.app",
+  messagingSenderId: "326486846589",
+  appId: "1:326486846589:web:9d715e2085574cd668d514",
+  measurementId: "G-K9PN9WQLCX"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
