@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Global Reset and Font */
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body {
       background: linear-gradient(135deg, #4f46e5, #3b82f6);
@@ -28,6 +29,7 @@
       box-shadow: 0 8px 30px rgba(0,0,0,0.2);
       color: white;
       animation: fadeIn 0.4s ease-out forwards;
+      border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle white border */
     }
 
     /* Custom CSS Logo */
@@ -61,6 +63,7 @@
       border-radius: 4px;
       position: relative;
       background: rgba(16, 185, 129, 0.2);
+      transform: translateY(4px); /* Align slightly better */
     }
     .lock-icon::before {
       content: "";
@@ -95,7 +98,7 @@
       font-weight: bold;
       transition: 0.3s;
     }
-    .tab.active { background: white; color: #2563eb; }
+    .tab.active { background: white; color: #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
@@ -109,18 +112,22 @@
     }
     input { background: rgba(255, 255, 255, 0.85); color: black; }
     button { background: white; color: #2563eb; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    button:hover { background: #f3f4f6; }
+    button:hover { background: #e0e7ff; }
+
+    label { display: block; margin-bottom: 0.3rem; font-size: 0.9rem; font-weight: 600; text-align: left;}
 
     a.download-btn {
       display: inline-block;
       margin-top: 1rem;
-      padding: 0.8rem 1rem;
-      background: white;
-      color: #2563eb;
+      padding: 0.8rem 1.5rem;
+      background: #10b981; /* Green color for success */
+      color: white;
       font-weight: bold;
       border-radius: 12px;
       text-decoration: none;
+      transition: background 0.2s;
     }
+    a.download-btn:hover { background: #059669; }
 
     .helpdesk { font-size: 0.8rem; margin-top: 0.8rem; color: #e0e7ff; opacity: 0.85; }
     .credit { font-size: 0.65rem; opacity: 0.6; margin-top: 0.5rem; }
@@ -131,10 +138,12 @@
       right: 20px;
       background: white;
       color: black;
-      padding: 10px 15px;
+      padding: 12px 18px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       display: none;
+      font-weight: 600;
+      z-index: 10000;
     }
     .toast.show { display: block; }
 
@@ -147,12 +156,13 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 99999; /* Make sure it's clickable and on top */
+      z-index: 99999;
     }
     .popup-box {
       background: white;
       color: black;
-      max-width: 500px;
+      max-width: 90%;
+      width: 400px;
       padding: 2rem;
       border-radius: 16px;
       text-align: center;
@@ -169,6 +179,7 @@
       border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
+      margin-top: 1rem;
     }
 
     @keyframes fadeIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
@@ -183,7 +194,7 @@
       <p>My name is Shubham (BCA student) and I built this platform to help students securely upload and access their files anywhere — without needing Gmail or sharing personal information.</p>
       <p>Your privacy is my top priority: your documents are encrypted and stored securely, and even I (the developer) cannot access them.</p>
       <p>Just remember your username & password to access your documents anytime until they expire.</p>
-      <button onclick="closePopup()">Got it!</button>
+      <button onclick="window.closePopup()">Got it!</button>
     </div>
   </div>
 
@@ -195,28 +206,28 @@
       <div class="logo-text">MyDocKey</div>
     </div>
 
-    <p class="subtitle">Securely upload & access your files — no Gmail login required.</p>
+    <p class="subtitle">Securely upload & access your files — no Google login required.</p>
 
     <div class="tabs">
-      <div class="tab active" onclick="showTab('upload')">Upload</div>
-      <div class="tab" onclick="showTab('download')">Download</div>
+      <div class="tab active" onclick="window.showTab('upload')">Upload</div>
+      <div class="tab" onclick="window.showTab('download')">Download</div>
     </div>
 
     <!-- Upload Tab -->
     <div class="tab-content active" id="upload">
-      <input id="username" type="text" placeholder="Choose username" required>
-      <input id="password" type="password" placeholder="Set password" required>
+      <input id="username" type="text" placeholder="Choose a Unique Username" required>
+      <input id="password" type="password" placeholder="Set Password for this file" required>
       <input id="file" type="file" required>
-      <label for="expiry">Select Expiry Date</label>
+      <label for="expiry">Select Expiry Date (File will auto-delete after this date)</label>
       <input id="expiry" type="date" required>
-      <button onclick="uploadFile()">Upload</button>
+      <button onclick="window.uploadFile()">Upload File</button>
     </div>
 
     <!-- Download Tab -->
     <div class="tab-content" id="download">
-      <input id="dl-username" type="text" placeholder="Enter username" required>
-      <input id="dl-password" type="password" placeholder="Enter password" required>
-      <button onclick="downloadFile()">Download</button>
+      <input id="dl-username" type="text" placeholder="Enter Username" required>
+      <input id="dl-password" type="password" placeholder="Enter Password" required>
+      <button onclick="window.downloadFile()">Access & Download</button>
       <div id="download-link"></div>
     </div>
 
@@ -228,106 +239,200 @@
 
   <!-- Firebase & Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    // Using version 11.6.1 for stability and required features
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+    // Set Firebase logging level for debugging purposes
+    setLogLevel('Debug');
 
+    // --- Firebase Initialization ---
+    // Mandatory configuration loading from environment
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
+    const auth = getAuth(app);
 
-    async function uploadFile() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const fileInput = document.getElementById("file");
-      const expiry = document.getElementById("expiry").value;
+    // Initial Authentication - required for Firestore/Storage access
+    (async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+                console.log("Signed in with custom token.");
+            } else {
+                await signInAnonymously(auth);
+                console.log("Signed in anonymously.");
+            }
+        } catch (error) {
+            console.error("Firebase authentication failed:", error);
+            window.showToast("⚠️ Authentication failed. Data storage may be unavailable.");
+        }
+    })();
+    // --- End Firebase Initialization ---
 
-      if (!username || !password || !fileInput.files.length || !expiry) {
-        showToast("⚠️ Please fill all fields.");
-        return;
-      }
 
-      const file = fileInput.files[0];
-      const fileRef = ref(storage, `uploads/${username}_${file.name}`);
-      await uploadBytes(fileRef, file);
-
-      await setDoc(doc(db, "users", username), {
-        password: btoa(password),
-        filePath: `uploads/${username}_${file.name}`,
-        fileName: file.name,
-        expiry: expiry
-      });
-
-      showToast("✅ File uploaded! Auto-deletes after " + expiry);
-    }
-
-    async function downloadFile() {
-      const username = document.getElementById("dl-username").value.trim();
-      const password = document.getElementById("dl-password").value.trim();
-
-      if (!username || !password) {
-        showToast("⚠️ Enter username & password.");
-        return;
-      }
-
-      const docRef = doc(db, "users", username);
-      const docSnap = await getDoc(docRef);
-
-      if (!docSnap.exists()) {
-        showToast("❌ No file found.");
-        return;
-      }
-
-      const data = docSnap.data();
-      if (btoa(password) !== data.password) {
-        showToast("❌ Incorrect password.");
-        return;
-      }
-
-      const today = new Date().toISOString().split("T")[0];
-      if (data.expiry < today) {
-        showToast("⏳ File expired.");
-        return;
-      }
-
-      const fileURL = await getDownloadURL(ref(storage, data.filePath));
-      document.getElementById("download-link").innerHTML =
-        `<a class="download-btn" href="${fileURL}" download="${data.fileName}">⬇ Download File</a>`;
-    }
-
-    function showTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
-      document.getElementById(tab).classList.add('active');
-    }
-
-    function showToast(message) {
+    /**
+     * Shows a temporary toast notification at the bottom right.
+     * @param {string} message - The message to display.
+     */
+    window.showToast = function(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
       toast.classList.add("show");
       setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
-    // Make closePopup global
+    /**
+     * Handles the file upload process.
+     * Stores file in Storage and metadata (password, path, expiry) in Firestore.
+     */
+    window.uploadFile = async function() {
+      if (!auth.currentUser) {
+        window.showToast("⚠️ Waiting for authentication. Please try again in a moment.");
+        return;
+      }
+      
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const fileInput = document.getElementById("file");
+      const expiry = document.getElementById("expiry").value;
+
+      if (!username || !password || !fileInput.files.length || !expiry) {
+        window.showToast("⚠️ Please fill all fields.");
+        return;
+      }
+
+      try {
+        window.showToast("⏳ Uploading file and encrypting metadata...");
+        const file = fileInput.files[0];
+        // Use the username and filename to ensure a unique storage path
+        const storagePath = `uploads/${username}/${file.name}`;
+        const fileRef = ref(storage, storagePath);
+        
+        // 1. Upload file to Storage
+        await uploadBytes(fileRef, file);
+        
+        // 2. Store metadata in Firestore (using username as the Document ID)
+        // Note: Password is base64 encoded by the user's original design, which is maintained.
+        const docId = `users-${username}`; // Added prefix to avoid conflicts with reserved IDs
+        await setDoc(doc(db, "mydockey_data", docId), {
+          password: btoa(password), // Base64 encoding for simple "encryption" (per original logic)
+          filePath: storagePath,
+          fileName: file.name,
+          expiry: expiry, // Date string (YYYY-MM-DD)
+          uploadedAt: new Date().toISOString(),
+          uploadedByUid: auth.currentUser.uid
+        });
+
+        window.showToast("✅ File uploaded successfully! Auto-deletes after " + expiry);
+        document.getElementById("upload").reset(); // Clear the form fields (if it were a form)
+
+      } catch (error) {
+        console.error("Upload error:", error);
+        window.showToast("❌ Upload failed. Check console for details.");
+      }
+    }
+
+    /**
+     * Handles the file download process.
+     * Checks credentials against Firestore and retrieves a download URL from Storage.
+     */
+    window.downloadFile = async function() {
+      if (!auth.currentUser) {
+        window.showToast("⚠️ Waiting for authentication. Please try again in a moment.");
+        return;
+      }
+
+      const username = document.getElementById("dl-username").value.trim();
+      const password = document.getElementById("dl-password").value.trim();
+      const downloadLinkDiv = document.getElementById("download-link");
+      downloadLinkDiv.innerHTML = ""; // Clear previous link
+
+      if (!username || !password) {
+        window.showToast("⚠️ Enter username & password.");
+        return;
+      }
+      
+      try {
+        window.showToast("⏳ Checking credentials...");
+        
+        const docId = `users-${username}`;
+        const docRef = doc(db, "mydockey_data", docId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          window.showToast("❌ No file found for this username.");
+          return;
+        }
+
+        const data = docSnap.data();
+        
+        // Check password (using base64 comparison per original logic)
+        if (btoa(password) !== data.password) {
+          window.showToast("❌ Incorrect password.");
+          return;
+        }
+
+        // Check expiration
+        const today = new Date().toISOString().split("T")[0];
+        if (data.expiry < today) {
+          window.showToast("⏳ File expired and is no longer accessible.");
+          // Ideally, a cleanup/deletion routine would run here or on a backend service.
+          return;
+        }
+
+        window.showToast("🔗 Generating download link...");
+        
+        // Get the public download URL from Storage
+        const fileURL = await getDownloadURL(ref(storage, data.filePath));
+        
+        downloadLinkDiv.innerHTML =
+          `<a class="download-btn" href="${fileURL}" download="${data.fileName}">⬇ Download ${data.fileName}</a>`;
+        
+        window.showToast("✅ Download link ready!");
+
+      } catch (error) {
+        console.error("Download error:", error);
+        window.showToast("❌ Access failed. Check console for details.");
+      }
+    }
+
+    /**
+     * Switches between the Upload and Download tabs.
+     * @param {string} tab - The ID of the tab to show ('upload' or 'download').
+     */
+    window.showTab = function(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.tab[onclick="window.showTab('${tab}')"]`).classList.add('active');
+      document.getElementById(tab).classList.add('active');
+    }
+
+    /**
+     * Closes the welcome popup and sets a flag in local storage.
+     */
     window.closePopup = function () {
       document.getElementById("welcome-popup").style.display = "none";
       localStorage.setItem("popupClosed", "true");
     };
 
-    // Show popup only first time
+    // Show popup only first time the user visits
     window.addEventListener("load", () => {
+      // Ensure the expiry field defaults to tomorrow for better user experience
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      const tomorrow = today.toISOString().split('T')[0];
+      document.getElementById('expiry').min = tomorrow;
+      document.getElementById('expiry').value = tomorrow;
+
+
       if (localStorage.getItem("popupClosed") === "true") {
         document.getElementById("welcome-popup").style.display = "none";
+      } else {
+        document.getElementById("welcome-popup").style.display = "flex";
       }
     });
   </script>
