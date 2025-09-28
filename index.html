@@ -8,7 +8,7 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
   body{background:linear-gradient(135deg,#4f46e5,#3b82f6);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem;}
-  .card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.2);color:white;animation:fadeIn 0.4s ease-out forwards;border:1px solid rgba(255,255,255,0.2);}
+  .card{background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.2);color:white;border:1px solid rgba(255,255,255,0.2);}
   .logo-container{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:1rem;}
   .doc-icon{width:24px;height:28px;border:2px solid #fff;border-radius:3px;position:relative;}
   .doc-icon::before{content:"";position:absolute;width:12px;height:2px;background:white;top:6px;left:4px;border-radius:1px;box-shadow:0 6px white,0 12px white;}
@@ -32,7 +32,6 @@
   .credit{font-size:0.65rem;opacity:0.6;margin-top:0.5rem;}
   .toast{position:fixed;bottom:20px;right:20px;background:white;color:black;padding:12px 18px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.2);display:none;font-weight:600;z-index:10000;}
   .toast.show{display:block;}
-  @keyframes fadeIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
 </style>
 </head>
 <body>
@@ -90,6 +89,8 @@ const firebaseConfig = {
   appId: "1:326486846589:web:9d715e2085574cd668d514",
   measurementId: "G-K9PN9WQLCX"
 };
+// ----------------------------------------------------------------------
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -102,17 +103,18 @@ function showToast(msg) {
   const toast = document.getElementById("toast");
   toast.textContent = msg;
   toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"),3000);
+  setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
 // Sign in anonymously
-async function initAuth(){
+async function initAuth() {
   try {
     const userCredential = await signInAnonymously(auth);
     currentUser = userCredential.user;
-    console.log("Signed in anonymously:",currentUser.uid);
-  } catch(e){
-    console.error("Firebase auth failed:",e);
+    console.log("Signed in anonymously:", currentUser.uid);
+    showToast("✅ Authenticated with Firebase");
+  } catch (e) {
+    console.error("Firebase auth failed:", e);
     showToast("⚠️ Firebase authentication failed");
   }
 }
@@ -129,62 +131,71 @@ document.querySelectorAll('.tab').forEach(tab=>{
 });
 
 // Upload
-document.getElementById('upload-btn').addEventListener('click', async ()=>{
+document.getElementById('upload-btn').addEventListener('click', async () => {
   if(!currentUser){ showToast("⚠️ Waiting for authentication"); return; }
-  const username=document.getElementById('username').value.trim();
-  const password=document.getElementById('password').value.trim();
-  const fileInput=document.getElementById('file');
-  const expiry=document.getElementById('expiry').value;
-  if(!username||!password||!fileInput.files.length||!expiry){ showToast("⚠️ Fill all fields"); return; }
-  try{
-    showToast("⏳ Uploading...");
-    const file=fileInput.files[0];
-    const path=`files/${username}/${file.name}`;
-    await uploadBytes(ref(storage,path),file);
-    await setDoc(doc(db,'files',username),{
-      password:btoa(password),
-      filePath:path,
-      fileName:file.name,
-      expiry:expiry,
-      uploadedAt:new Date().toISOString(),
-      uploadedByUid:currentUser.uid
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const fileInput = document.getElementById('file');
+  const expiry = document.getElementById('expiry').value;
+
+  if(!username || !password || !fileInput.files.length || !expiry){ showToast("⚠️ Fill all fields"); return; }
+
+  try {
+    const file = fileInput.files[0];
+    const storagePath = `files/${username}/${file.name}`;
+    await uploadBytes(ref(storage, storagePath), file);
+
+    await setDoc(doc(db, 'files', username), {
+      password: btoa(password),
+      filePath: storagePath,
+      fileName: file.name,
+      expiry: expiry,
+      uploadedAt: new Date().toISOString(),
+      uploadedByUid: currentUser.uid
     });
+
     showToast("✅ File uploaded!");
-    document.getElementById('username').value='';
-    document.getElementById('password').value='';
-    document.getElementById('file').value='';
-  }catch(e){console.error(e); showToast("❌ Upload failed");}
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('file').value = '';
+  } catch(e){ console.error(e); showToast("❌ Upload failed"); }
 });
 
 // Download
-document.getElementById('download-btn').addEventListener('click', async ()=>{
+document.getElementById('download-btn').addEventListener('click', async () => {
   if(!currentUser){ showToast("⚠️ Waiting for authentication"); return; }
-  const username=document.getElementById('dl-username').value.trim();
-  const password=document.getElementById('dl-password').value.trim();
-  const downloadDiv=document.getElementById('download-link');
-  downloadDiv.innerHTML='';
-  if(!username||!password){ showToast("⚠️ Enter username & password"); return; }
-  try{
-    showToast("⏳ Checking...");
-    const docSnap=await getDoc(doc(db,'files',username));
+
+  const username = document.getElementById('dl-username').value.trim();
+  const password = document.getElementById('dl-password').value.trim();
+  const downloadDiv = document.getElementById('download-link');
+  downloadDiv.innerHTML = "";
+
+  if(!username || !password){ showToast("⚠️ Enter username & password"); return; }
+
+  try {
+    const docSnap = await getDoc(doc(db, 'files', username));
     if(!docSnap.exists()){ showToast("❌ File not found"); return; }
-    const data=docSnap.data();
-    if(btoa(password)!==data.password){ showToast("❌ Incorrect password"); return; }
-    const today=new Date().toISOString().split('T')[0];
-    if(data.expiry<today){ showToast("⏳ File expired"); return; }
-    const fileURL=await getDownloadURL(ref(storage,data.filePath));
-    downloadDiv.innerHTML=`<a class="download-btn" href="${fileURL}" download="${data.fileName}">⬇ Download ${data.fileName}</a>`;
+
+    const data = docSnap.data();
+    if(btoa(password) !== data.password){ showToast("❌ Incorrect password"); return; }
+
+    const today = new Date().toISOString().split('T')[0];
+    if(data.expiry < today){ showToast("⏳ File expired"); return; }
+
+    const fileURL = await getDownloadURL(ref(storage, data.filePath));
+    downloadDiv.innerHTML = `<a class="download-btn" href="${fileURL}" download="${data.fileName}">⬇ Download ${data.fileName}</a>`;
     showToast("✅ Download ready!");
-  }catch(e){console.error(e); showToast("❌ Access failed");}
+  } catch(e){ console.error(e); showToast("❌ Access failed"); }
 });
 
 // Set expiry min date
-window.addEventListener('load',()=>{
-  const d=new Date();
+window.addEventListener('load', () => {
+  const d = new Date();
   d.setDate(d.getDate()+1);
-  const tomorrow=d.toISOString().split('T')[0];
-  document.getElementById('expiry').min=tomorrow;
-  document.getElementById('expiry').value=tomorrow;
+  const tomorrow = d.toISOString().split('T')[0];
+  document.getElementById('expiry').min = tomorrow;
+  document.getElementById('expiry').value = tomorrow;
 });
 </script>
 </body>
