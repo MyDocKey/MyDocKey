@@ -23,7 +23,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;transition: background 0.3s, color 0.3s;}
   body{background:linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem;}
-  .card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px var(--shadow-color);color:var(--text-color);border:1px solid var(--border-color); position: relative; overflow: hidden; padding-bottom: 3rem;}
+  .card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px var(--shadow-color);color:var(--text-color);border:1px solid var(--border-color); position: relative; overflow: hidden; padding-bottom: 4rem;}
   .logo-container{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:1rem;}
   .doc-icon{width:24px;height:28px;border:2px solid var(--text-color);border-radius:3px;position:relative;}
   .doc-icon::before{content:"";position:absolute;width:12px;height:2px;background:var(--text-color);top:6px;left:4px;border-radius:1px;box-shadow:0 6px var(--text-color),0 12px var(--text-color);}
@@ -47,7 +47,8 @@
   button:disabled { background: #9ca3af; cursor: not-allowed; }
   label{display:block;margin-bottom:0.3rem;font-size:0.9rem;font-weight:600;text-align:left;}
   a {color: var(--text-color); text-decoration: underline;}
-  .credit{font-size:0.6rem;opacity:0.5;position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);}
+  .helpdesk { font-size: 0.8rem; opacity: 0.85; position: absolute; bottom: 38px; /* Approx 1cm */ left: 50%; transform: translateX(-50%); width: 100%; }
+  .credit{font-size:0.6rem;opacity:0.5;position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);}
   .toast{position:fixed;bottom:20px;right:20px;background:var(--button-bg);color:var(--button-text);padding:12px 18px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.2);transform:translateX(calc(100% + 20px));transition:transform 0.4s;font-weight:600;z-index:10000;}
   .toast.show{transform:translateX(0);}
   .theme-switcher { position: fixed; top: 20px; right: 20px; cursor: pointer; z-index: 1001;}
@@ -134,6 +135,7 @@
     <div id="my-files-result"></div>
   </div>
   
+  <p class="helpdesk">Contact: <a href="mailto:helpdesk.mydockey@gmail.com">helpdesk.mydockey@gmail.com</a></p>
   <p class="credit">Created by Shubham (BCA student) | Enhanced Version</p>
 </div>
 
@@ -169,7 +171,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } f
 const firebaseConfig = {
     apiKey: "AIzaSyBNMO68Z3fHDUPSMluGdem7tiXFitPJ9Xs", authDomain: "mydockey-23982.firebaseapp.com",
     projectId: "mydockey-23982", storageBucket: "mydockey-23982.appspot.com",
-    messagingSenderId: "326486846589", appId: "1:326486846589:web:9d715e2085574cd668d514", measurementId: "G-K9PN9WQLCX"
+    messagingSenderId: "326486846589", appId: "1:326486846589:web:9d715e2085574cd668d514", measurementId: "G-KPN9WQLCX"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -209,7 +211,7 @@ const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 
 const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 008.25-4.5c.203-.359.395-.724.552-1.101zM12.75 5.25a7.5 7.5 0 00-7.5 7.5 7.5 7.5 0 007.5 7.5 7.5 7.5 0 007.5-7.5 7.5 7.5 0 00-7.5-7.5z" /></svg>`;
 function setTheme(theme) { document.documentElement.setAttribute('data-theme', theme); themeToggle.innerHTML = theme === 'dark' ? sunIcon : moonIcon; localStorage.setItem('theme', theme); }
 
-async function initAuth() { try { await signInAnonymously(auth); currentUser = auth.currentUser; showToast("✅ Authenticated"); } catch (e) { console.error("Auth failed:", e); showToast("⚠️ Auth failed"); } }
+async function initAuth() { try { await signInAnonymously(auth); currentUser = auth.currentUser; showToast("✅ Authenticated"); } catch (e) { console.error("Auth failed:", e); showToast(`⚠️ Auth failed: ${e.code}`); } }
 
 document.querySelectorAll('.tab').forEach(tab=>{ tab.addEventListener('click',()=>{ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); tab.classList.add('active'); getEl(tab.dataset.tab).classList.add('active'); }); });
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
@@ -245,7 +247,7 @@ uploadBtn.addEventListener('click', async () => {
         await setDoc(doc(db, 'files', username), { password: btoa(password), files: uploadedFiles, expiry: expiry, uploadedAt: new Date().toISOString() });
         showToast(`✅ ${uploadedFiles.length} file(s) uploaded!`);
         getEl('username').value = ''; getEl('password').value = ''; filesToUpload = []; updateFileDisplay(); initCaptcha();
-    } catch (error) { console.error(error); showToast(`❌ Upload failed`);
+    } catch (error) { console.error(error); showToast(`❌ Upload failed: ${error.code}`);
     } finally { uploadBtn.disabled = false; uploadBtn.textContent = 'Upload Files'; progressBarContainer.style.display = 'none'; }
 });
 
@@ -267,7 +269,7 @@ getEl('download-btn').addEventListener('click', async () => {
             const a = document.createElement('a'); a.href = fileURL; a.download = file.name; a.textContent = `⬇ Download ${file.name}`;
             downloadDiv.appendChild(a);
         }
-    } catch (e) { console.error(e); showToast("❌ Access failed"); initCaptcha(); }
+    } catch (e) { console.error(e); showToast(`❌ Access failed: ${e.code}`); initCaptcha(); }
 });
 
 getEl('find-files-btn').addEventListener('click', async () => {
@@ -279,7 +281,7 @@ getEl('find-files-btn').addEventListener('click', async () => {
         const data = docSnap.data();
         resultDiv.innerHTML = `<div class="file-bundle"><h4>Files for: ${username}</h4><p style="font-size:0.8rem; opacity:0.8;">Expires on: ${new Date(data.expiry).toDateString()}</p><ul>${data.files.map(f => `<li>${f.name}</li>`).join('')}</ul><button id="delete-bundle-btn" data-username="${username}">Delete All Files</button></div>`;
         getEl('delete-bundle-btn').addEventListener('click', (e) => { getEl('delete-username-confirm').textContent = e.target.dataset.username; getEl('delete-modal').style.display = 'flex'; });
-    } catch (e) { console.error(e); showToast("❌ Error finding files"); }
+    } catch (e) { console.error(e); showToast(`❌ Error finding files: ${e.code}`); }
 });
 
 getEl('modal-cancel-delete').addEventListener('click', () => { getEl('delete-modal').style.display = 'none'; });
@@ -294,7 +296,7 @@ getEl('modal-confirm-delete').addEventListener('click', async () => {
             showToast("✅ All files deleted successfully!");
             getEl('manage-username').value = '';
         }
-    } catch (e) { console.error("Deletion failed:", e); showToast("❌ Deletion failed."); }
+    } catch (e) { console.error("Deletion failed:", e); showToast(`❌ Deletion failed: ${e.code}`); }
 });
 
 window.addEventListener('load', () => {
