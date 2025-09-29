@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyDocKey - Complete Version</title>
+<title>MyDocKey - Streamlined Access</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -23,7 +23,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;transition: background 0.3s, color 0.3s;}
   body{background:linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));display:flex;justify-content:center;align-items:center;min-height:100vh;padding:1rem;}
-  .card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px var(--shadow-color);color:var(--text-color);border:1px solid var(--border-color); position: relative; overflow: hidden; padding-bottom: 4rem;}
+  .card{background:var(--card-bg);backdrop-filter:blur(12px);border-radius:20px;padding:2rem;width:100%;max-width:450px;text-align:center;box-shadow:0 8px 30px var(--shadow-color);color:var(--text-color);border:1px solid var(--border-color); position: relative; overflow: hidden; padding-bottom: 5rem;}
   .logo-container{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:1rem;}
   .doc-icon{width:24px;height:28px;border:2px solid var(--text-color);border-radius:3px;position:relative;}
   .doc-icon::before{content:"";position:absolute;width:12px;height:2px;background:var(--text-color);top:6px;left:4px;border-radius:1px;box-shadow:0 6px var(--text-color),0 12px var(--text-color);}
@@ -47,8 +47,9 @@
   button:disabled { background: #9ca3af; cursor: not-allowed; }
   label{display:block;margin-bottom:0.3rem;font-size:0.9rem;font-weight:600;text-align:left;}
   a {color: var(--text-color); text-decoration: underline;}
-  .helpdesk { font-size: 0.8rem; opacity: 0.85; position: absolute; bottom: 38px; /* Approx 1cm */ left: 50%; transform: translateX(-50%); width: 100%; }
-  .credit{font-size:0.6rem;opacity:0.5;position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);}
+  .footer-container { position: absolute; bottom: 12px; left: 0; right: 0; width: 100%; }
+  .helpdesk { font-size: 0.8rem; opacity: 0.85; margin-bottom: 4px; }
+  .credit { font-size: 0.6rem; opacity: 0.5; }
   .toast{position:fixed;bottom:20px;right:20px;background:var(--button-bg);color:var(--button-text);padding:12px 18px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.2);transform:translateX(calc(100% + 20px));transition:transform 0.4s;font-weight:600;z-index:10000;}
   .toast.show{transform:translateX(0);}
   .theme-switcher { position: fixed; top: 20px; right: 20px; cursor: pointer; z-index: 1001;}
@@ -68,10 +69,10 @@
   #progress-bar-container { width: 100%; background: var(--input-bg); border-radius: 8px; overflow: hidden; height: 10px; margin-bottom: 0.8rem; display: none; }
   #progress-bar { width: 0; height: 100%; background: var(--success-color); transition: width 0.3s; }
   .captcha-container { display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem; }
-  #captcha-canvas, #dl-captcha-canvas { background: white; border-radius: 8px; }
-  #reload-captcha, #dl-reload-captcha { background: transparent; border: none; padding: 0; cursor: pointer; }
-  #download-links-container a { display: block; background: var(--success-color); color: white; padding: 0.8rem; border-radius: 12px; text-decoration: none; font-weight: 600; margin-bottom: 0.5rem; transition: all 0.2s; transform: scale(1); }
-  #download-links-container a:hover { background: var(--success-hover); transform: scale(1.02); }
+  #captcha-canvas, #manage-captcha-canvas { background: white; border-radius: 8px; }
+  #reload-captcha, #manage-reload-captcha { background: transparent; border: none; padding: 0; cursor: pointer; }
+  #my-files-result a { display: block; background: var(--success-color); color: white; padding: 0.8rem; border-radius: 12px; text-decoration: none; font-weight: 600; margin-bottom: 0.5rem; transition: all 0.2s; transform: scale(1); }
+  #my-files-result a:hover { background: var(--success-hover); transform: scale(1.02); }
   #my-files-result { margin-top: 1.5rem; text-align: left; }
   .file-bundle { background: var(--tab-bg); padding: 1rem; border-radius: 12px; animation: fadeIn 0.5s; }
   .file-bundle h4 { margin-bottom: 0.5rem; }
@@ -92,8 +93,7 @@
   <p class="subtitle">Securely share your files — no login required.</p>
   <div class="tabs">
     <div class="tab active" data-tab="upload">Upload</div>
-    <div class="tab" data-tab="download">Download</div>
-    <div class="tab" data-tab="my-files">My Files</div>
+    <div class="tab" data-tab="my-files">Access Files</div>
   </div>
 
   <div class="tab-content active" id="upload">
@@ -116,27 +116,23 @@
     <button id="upload-btn">Upload Files</button>
   </div>
 
-  <div class="tab-content" id="download">
-    <input id="dl-username" type="text" placeholder="Enter Username" required>
-    <input id="dl-password" type="password" placeholder="Enter Password" required>
-    <div class="captcha-container">
-        <canvas id="dl-captcha-canvas" width="120" height="40"></canvas>
-        <input id="dl-captcha-input" type="text" placeholder="Enter CAPTCHA" required style="margin:0;">
-        <button id="dl-reload-captcha" title="Reload CAPTCHA"></button>
-    </div>
-    <button id="download-btn">Access Files</button>
-    <div id="download-links-container" style="margin-top:1rem;"></div>
-  </div>
-
   <div class="tab-content" id="my-files">
-    <p style="font-size:0.9rem; opacity:0.8; margin-bottom:1rem;">Enter username to manage your uploaded files.</p>
+    <p style="font-size:0.9rem; opacity:0.8; margin-bottom:1rem;">Enter your credentials to manage or download your files.</p>
     <input id="manage-username" type="text" placeholder="Enter Username" required>
-    <button id="find-files-btn">Find My Files</button>
+    <input id="manage-password" type="password" placeholder="Enter Password" required>
+    <div class="captcha-container">
+        <canvas id="manage-captcha-canvas" width="120" height="40"></canvas>
+        <input id="manage-captcha-input" type="text" placeholder="Enter CAPTCHA" required style="margin:0;">
+        <button id="manage-reload-captcha" title="Reload CAPTCHA"></button>
+    </div>
+    <button id="find-files-btn">ACCESS & DOWNLOAD</button>
     <div id="my-files-result"></div>
   </div>
   
-  <p class="helpdesk">Contact: <a href="mailto:helpdesk.mydockey@gmail.com">helpdesk.mydockey@gmail.com</a></p>
-  <p class="credit">Created by Shubham (BCA student) | Enhanced Version</p>
+  <div class="footer-container">
+    <p class="helpdesk">Contact: <a href="mailto:helpdesk.mydockey@gmail.com">helpdesk.mydockey@gmail.com</a></p>
+    <p class="credit">Created by Shubham (BCA student) | Enhanced Version</p>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -171,7 +167,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } f
 const firebaseConfig = {
     apiKey: "AIzaSyBNMO68Z3fHDUPSMluGdem7tiXFitPJ9Xs", authDomain: "mydockey-23982.firebaseapp.com",
     projectId: "mydockey-23982", storageBucket: "mydockey-23982.appspot.com",
-    messagingSenderId: "326486846589", appId: "1:326486846589:web:9d715e2085574cd668d514", measurementId: "G-KPN9WQLCX"
+    messagingSenderId: "326486846589", appId: "1:326486846589:web:9d715e2085574cd668d514", measurementId: "G-KPNWQLCX"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -179,7 +175,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-let currentUser = null; let filesToUpload = []; let captchaText = ''; let dlCaptchaText = '';
+let currentUser = null; let filesToUpload = []; 
+let captchaText = ''; let manageCaptchaText = '';
 
 const getEl = (id) => document.getElementById(id);
 const toast = getEl("toast"); const fileInput = getEl('file'); const dropZone = getEl('drop-zone');
@@ -204,7 +201,10 @@ function generateCaptcha(canvasId) {
     ctx.fillText(text, canvas.width / 2, canvas.height / 2);
     return text;
 }
-function initCaptcha() { captchaText = generateCaptcha('captcha-canvas'); dlCaptchaText = generateCaptcha('dl-captcha-canvas'); }
+function initCaptcha() { 
+    captchaText = generateCaptcha('captcha-canvas'); 
+    manageCaptchaText = generateCaptcha('manage-captcha-canvas');
+}
 
 const themeToggle = getEl('theme-toggle');
 const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg>`;
@@ -225,7 +225,7 @@ uploadBtn.addEventListener('click', async () => {
     const username = getEl('username').value.trim(); const password = getEl('password').value.trim();
     const expiry = getEl('expiry').value; const captchaInput = getEl('captcha-input').value;
     if (!username || !password || filesToUpload.length === 0 || !expiry) { showToast("⚠️ Fill all fields & select files"); return; }
-    if (captchaInput.toUpperCase() !== captchaText.toUpperCase()) { showToast("❌ Invalid CAPTCHA"); initCaptcha(); return; }
+    if (captchaInput.toUpperCase() !== captchaText.toUpperCase()) { showToast("❌ Invalid CAPTCHA"); captchaText = generateCaptcha('captcha-canvas'); return; }
 
     uploadBtn.disabled = true; uploadBtn.textContent = 'Uploading...';
     progressBarContainer.style.display = 'block'; progressBar.style.width = '0%';
@@ -251,37 +251,55 @@ uploadBtn.addEventListener('click', async () => {
     } finally { uploadBtn.disabled = false; uploadBtn.textContent = 'Upload Files'; progressBarContainer.style.display = 'none'; }
 });
 
-getEl('download-btn').addEventListener('click', async () => {
-    const username = getEl('dl-username').value.trim(); const password = getEl('dl-password').value.trim();
-    const captchaInput = getEl('dl-captcha-input').value; const downloadDiv = getEl('download-links-container');
-    downloadDiv.innerHTML = "";
-    if (!username || !password) { showToast("⚠️ Enter username & password"); return; }
-    if (captchaInput.toUpperCase() !== dlCaptchaText.toUpperCase()) { showToast("❌ Invalid CAPTCHA"); initCaptcha(); return; }
+getEl('find-files-btn').addEventListener('click', async () => {
+    const username = getEl('manage-username').value.trim(); 
+    const password = getEl('manage-password').value.trim();
+    const captchaInput = getEl('manage-captcha-input').value.trim();
+    const resultDiv = getEl('my-files-result');
+    resultDiv.innerHTML = ''; 
+
+    if (!username || !password) { showToast("⚠️ Please enter username and password"); return; }
+    if (captchaInput.toUpperCase() !== manageCaptchaText.toUpperCase()) { showToast("❌ Invalid CAPTCHA"); manageCaptchaText = generateCaptcha('manage-captcha-canvas'); return; }
+
     try {
         const docSnap = await getDoc(doc(db, 'files', username));
-        if (!docSnap.exists()) { showToast("❌ Files not found"); initCaptcha(); return; }
+        if (!docSnap.exists()) { 
+            showToast("❌ No files found for this username"); 
+            resultDiv.innerHTML = `<p>No uploads found.</p>`; 
+            manageCaptchaText = generateCaptcha('manage-captcha-canvas');
+            return; 
+        }
+
         const data = docSnap.data();
-        if (btoa(password) !== data.password) { showToast("❌ Incorrect password"); initCaptcha(); return; }
-        if (new Date(data.expiry) < new Date()) { showToast("⏳ Links expired"); return; }
+        if (btoa(password) !== data.password) {
+            showToast("❌ Incorrect password");
+            manageCaptchaText = generateCaptcha('manage-captcha-canvas');
+            return;
+        }
+        
+        if (new Date(data.expiry) < new Date()) {
+            showToast("⏳ File links have expired");
+            resultDiv.innerHTML = `<p>These files expired on ${new Date(data.expiry).toDateString()}.</p>`;
+            return;
+        }
+
         showToast("✅ Access granted! Fetching links...");
+
+        let downloadLinksHTML = '<div style="margin-top:1rem;">';
         for (const file of data.files) {
             const fileURL = await getDownloadURL(ref(storage, file.path));
-            const a = document.createElement('a'); a.href = fileURL; a.download = file.name; a.textContent = `⬇ Download ${file.name}`;
-            downloadDiv.appendChild(a);
+            downloadLinksHTML += `<a href="${fileURL}" download="${file.name}">⬇ Download ${file.name}</a>`;
         }
-    } catch (e) { console.error(e); showToast(`❌ Access failed: ${e.code}`); initCaptcha(); }
-});
+        downloadLinksHTML += '</div>';
 
-getEl('find-files-btn').addEventListener('click', async () => {
-    const username = getEl('manage-username').value.trim(); const resultDiv = getEl('my-files-result');
-    resultDiv.innerHTML = ''; if (!username) { showToast("⚠️ Please enter a username"); return; }
-    try {
-        const docSnap = await getDoc(doc(db, 'files', username));
-        if (!docSnap.exists()) { showToast("❌ No files found"); resultDiv.innerHTML = `<p>No uploads found.</p>`; return; }
-        const data = docSnap.data();
-        resultDiv.innerHTML = `<div class="file-bundle"><h4>Files for: ${username}</h4><p style="font-size:0.8rem; opacity:0.8;">Expires on: ${new Date(data.expiry).toDateString()}</p><ul>${data.files.map(f => `<li>${f.name}</li>`).join('')}</ul><button id="delete-bundle-btn" data-username="${username}">Delete All Files</button></div>`;
+        resultDiv.innerHTML = `<div class="file-bundle"><h4>Files for: ${username}</h4><p style="font-size:0.8rem; opacity:0.8;">Expires on: ${new Date(data.expiry).toDateString()}</p>${downloadLinksHTML}<button id="delete-bundle-btn" data-username="${username}" style="margin-top:1rem;">Delete All Files</button></div>`;
         getEl('delete-bundle-btn').addEventListener('click', (e) => { getEl('delete-username-confirm').textContent = e.target.dataset.username; getEl('delete-modal').style.display = 'flex'; });
-    } catch (e) { console.error(e); showToast(`❌ Error finding files: ${e.code}`); }
+    
+    } catch (e) { 
+        console.error(e); 
+        showToast(`❌ Error finding files: ${e.code}`); 
+        manageCaptchaText = generateCaptcha('manage-captcha-canvas');
+    }
 });
 
 getEl('modal-cancel-delete').addEventListener('click', () => { getEl('delete-modal').style.display = 'none'; });
@@ -295,6 +313,8 @@ getEl('modal-confirm-delete').addEventListener('click', async () => {
             await deleteDoc(docRef);
             showToast("✅ All files deleted successfully!");
             getEl('manage-username').value = '';
+            getEl('manage-password').value = '';
+            getEl('manage-captcha-input').value = '';
         }
     } catch (e) { console.error("Deletion failed:", e); showToast(`❌ Deletion failed: ${e.code}`); }
 });
@@ -307,9 +327,9 @@ window.addEventListener('load', () => {
     if (localStorage.getItem('hideWelcome') !== 'true') { welcomeModal.style.display = 'flex'; }
     getEl('close-welcome').addEventListener('click', () => { if (getEl('hide-welcome').checked) { localStorage.setItem('hideWelcome', 'true'); } welcomeModal.style.display = 'none'; });
     const reloadIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.181-3.183m-4.991-2.693L7.985 5.644m0 0v4.992m0 0h4.992m-4.993 0l3.181-3.183a8.25 8.25 0 0111.664 0l3.181 3.183" /></svg>`;
-    getEl('reload-captcha').innerHTML = getEl('dl-reload-captcha').innerHTML = reloadIcon;
+    getEl('reload-captcha').innerHTML = getEl('manage-reload-captcha').innerHTML = reloadIcon;
     getEl('reload-captcha').addEventListener('click', () => captchaText = generateCaptcha('captcha-canvas'));
-    getEl('dl-reload-captcha').addEventListener('click', () => dlCaptchaText = generateCaptcha('dl-captcha-canvas'));
+    getEl('manage-reload-captcha').addEventListener('click', () => manageCaptchaText = generateCaptcha('manage-captcha-canvas'));
     themeToggle.addEventListener('click', () => { const currentTheme = document.documentElement.getAttribute('data-theme'); setTheme(currentTheme === 'dark' ? 'light' : 'dark'); });
     initAuth();
     initCaptcha();
