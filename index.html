@@ -140,7 +140,7 @@
   
   <div class="footer-container">
     <p class="helpdesk">Contact: <a href="mailto:helpdesk.mydockey@yahoo.com">helpdesk.mydockey@yahoo.com</a></p>
-    <p class="credit">Created by Shubham (BCA student)</p>
+    <p class="credit">Created by Shubham (BCA student) | Enhanced Version</p>
   </div>
 </div>
 
@@ -247,7 +247,11 @@ const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 
 const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 008.25-4.5c.203-.359.395-.724.552-1.101zM12.75 5.25a7.5 7.5 0 00-7.5 7.5 7.5 7.5 0 007.5 7.5 7.5 7.5 0 007.5-7.5 7.5 7.5 0 00-7.5-7.5z" /></svg>`;
 function setTheme(theme) { document.documentElement.setAttribute('data-theme', theme); themeToggle.innerHTML = theme === 'dark' ? sunIcon : moonIcon; localStorage.setItem('theme', theme); }
 
-async function initAuth() { try { await signInAnonymously(auth); currentUser = auth.currentUser; showToast("✅ Authenticated"); } catch (e) { console.error("Auth failed:", e); showToast(`⚠️ Auth failed: ${e.message || e.code || e}`); } }
+async function initAuth() { 
+  await signInAnonymously(auth); 
+  currentUser = auth.currentUser; 
+  showToast("✅ Authenticated"); 
+}
 
 document.querySelectorAll('.tab').forEach(tab=>{
     tab.addEventListener('click',()=>{
@@ -303,14 +307,10 @@ uploadBtn.addEventListener('click', async () => {
         const hashedPassword = await hashPassword(password);
         for (const file of filesToUpload) {
             const storagePath = `files/${username}/${file.name}`; const storageRef = ref(storage, storagePath);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-            await new Promise((resolve, reject) => {
-                uploadTask.on('state_changed', (snapshot) => {
-                    const progress = (uploadedSize + snapshot.bytesTransferred) / totalSize * 100;
-                    progressBar.style.width = progress + '%';
-                }, reject, () => {
-                    uploadedSize += file.size; uploadedFiles.push({ name: file.name, path: storagePath }); resolve();
-                });
+            await uploadBytesResumable(storageRef, file).then(() => {
+              uploadedSize += file.size;
+              uploadedFiles.push({ name: file.name, path: storagePath });
+              progressBar.style.width = ((uploadedSize / totalSize) * 100) + '%';
             });
         }
         const docData = { password: hashedPassword, files: uploadedFiles, expiry: expiry, uploadedAt: new Date().toISOString() };
